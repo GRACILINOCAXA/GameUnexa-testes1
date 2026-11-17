@@ -1,0 +1,16 @@
+<% comments.forEach(comment => { %>
+  <div class="comment-item" style="margin-left: <%= Math.min(comment.depth, 6) * 18 %>px;">
+    <div class="comment-content">
+      <a href="/profile/<%= comment.author %>" class="comment-author">@<%= comment.author %></a>
+      <span><%= comment.text %></span>
+    </div>
+    <form action="/social/comment" method="POST" class="reply-form">
+      <input type="hidden" name="targetType" value="<%= targetType %>">
+      <input type="hidden" name="targetId" value="<%= targetId %>">
+      <input type="hidden" name="parentCommentId" value="<%= comment.id %>">
+      <input type="hidden" name="redirectTo" value="<%= redirectTo %>">
+      <input type="text" name="text" maxlength="1000" placeholder="Responder a @<%= comment.author %>" required>
+      <button type="submit" class="btn btn-secondary">Responder</button>
+    </form>
+  </div>
+<% }) %>

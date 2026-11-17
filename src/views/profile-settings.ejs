@@ -1,0 +1,65 @@
+<%- include('partials/head', { title: 'Editar perfil' }) %>
+
+<section class="profile-settings">
+  <h1>Editar perfil</h1>
+  <p class="auth-subtitle">Personalize as informações públicas do seu perfil de jogador.</p>
+
+  <% if (error) { %>
+    <div class="alert-error"><%= error %></div>
+  <% } %>
+
+  <form action="/user/settings" method="POST">
+    <div class="form-group">
+      <label for="bio">Biografia</label>
+      <textarea id="bio" name="bio" maxlength="500" rows="4"><%= profile.bio %></textarea>
+      <small>Até 500 caracteres.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="avatarUrl">Foto do avatar (URL HTTPS)</label>
+      <input id="avatarUrl" name="avatarUrl" type="url" maxlength="2048" value="<%= profile.avatarUrl %>" placeholder="https://exemplo.com/minha-foto.jpg">
+    </div>
+
+    <div class="form-group">
+      <label for="preferredPlatform">Plataforma preferida</label>
+      <select id="preferredPlatform" name="preferredPlatform">
+        <option value="">Não informar</option>
+        <% platforms.forEach(platform => { %>
+          <option value="<%= platform %>" <%= profile.preferredPlatform === platform ? 'selected' : '' %>><%= platform %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="libraryVisibility">Visibilidade da biblioteca e favoritos</label>
+      <select id="libraryVisibility" name="libraryVisibility">
+        <option value="PUBLIC" <%= profile.libraryVisibility === 'PUBLIC' ? 'selected' : '' %>>Público</option>
+        <option value="FRIENDS" <%= profile.libraryVisibility === 'FRIENDS' ? 'selected' : '' %>>Apenas amigos</option>
+      </select>
+    </div>
+
+    <h2 class="section-title">Links de jogador</h2>
+    <div class="form-group">
+      <label for="steamUrl">Perfil Steam (URL HTTPS)</label>
+      <input id="steamUrl" name="steamUrl" type="url" maxlength="2048" value="<%= profile.steamUrl %>" placeholder="https://steamcommunity.com/id/seu-perfil">
+    </div>
+
+    <div class="form-group">
+      <label for="psnUrl">Perfil PSN (URL HTTPS)</label>
+      <input id="psnUrl" name="psnUrl" type="url" maxlength="2048" value="<%= profile.psnUrl %>" placeholder="https://...">
+    </div>
+
+    <div class="form-group">
+      <label for="xboxLiveUrl">Perfil Xbox Live (URL HTTPS)</label>
+      <input id="xboxLiveUrl" name="xboxLiveUrl" type="url" maxlength="2048" value="<%= profile.xboxLiveUrl %>" placeholder="https://...">
+    </div>
+
+    <div class="profile-settings-actions">
+      <button type="submit" class="btn btn-primary">Salvar alterações</button>
+      <a href="/profile" class="btn btn-secondary">Cancelar</a>
+      <a href="/user/account" class="btn btn-secondary">Configurações da conta</a>
+    </div>
+  </form>
+</section>
+
+<%- include('partials/footer') %>

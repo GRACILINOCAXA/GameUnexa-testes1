@@ -1,9 +1,10 @@
 import neo4j from 'neo4j-driver';
 import 'dotenv/config';
 
-const uri = process.env.NEO4J_URI;
-const user = process.env.NEO4J_USER;
-const password = process.env.NEO4J_PASSWORD;
+const uri = process.env.NEO4J_URI || 'bolt://localhost:7687';
+const user = process.env.NEO4J_USER || process.env.NEO4J_USERNAME || 'neo4j';
+const password = process.env.NEO4J_PASSWORD || '';
+const database = process.env.NEO4J_DATABASE;
 
 export const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
 
@@ -18,5 +19,5 @@ export const verifyConnection = async () => {
 };
 
 export const getSession = () => {
-  return driver.session();
+  return database ? driver.session({ database }) : driver.session();
 };

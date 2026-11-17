@@ -10,6 +10,25 @@
   <button type="submit" class="btn btn-primary">Buscar</button>
 </form>
 
+<% if (friendRequests.length > 0) { %>
+  <section class="friend-requests">
+    <h2 class="section-title">Pedidos de amizade recebidos</h2>
+    <% friendRequests.forEach(request => { %>
+      <div class="friend-request-item">
+        <a href="/profile/<%= request.username %>" class="player-name">@<%= request.username %></a>
+        <div class="friend-request-actions">
+          <form action="/community/friends/accept/<%= request.id %>" method="POST">
+            <button type="submit" class="btn btn-primary">Aceitar</button>
+          </form>
+          <form action="/community/friends/decline/<%= request.id %>" method="POST">
+            <button type="submit" class="btn btn-secondary">Recusar</button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </section>
+<% } %>
+
 <% if (players.length === 0) { %>
   <p style="color: var(--text-muted);">Nenhum outro jogador encontrado.</p>
 <% } else { %>
@@ -24,13 +43,40 @@
             <% } %>
           </div>
           <p class="game-meta" style="margin-top: 6px;">
-            <%= player.gamesCount %> jogos na biblioteca
+            <% if (player.canViewLibrary) { %>
+              <%= player.gamesCount %> jogos na biblioteca
+            <% } else { %>
+              Biblioteca privada
+            <% } %>
           </p>
         </div>
 
+        <a href="/profile/<%= player.username %>" class="btn btn-secondary">Ver Perfil</a>
+
+        <% if (player.isFriend) { %>
+          <span class="status-badge">Amigos</span>
+        <% } else if (player.hasIncomingRequest) { %>
+          <div class="friend-request-actions">
+            <form action="/community/friends/accept/<%= player.id %>" method="POST">
+              <button type="submit" class="btn btn-primary">Aceitar</button>
+            </form>
+            <form action="/community/friends/decline/<%= player.id %>" method="POST">
+              <button type="submit" class="btn btn-secondary">Recusar</button>
+            </form>
+          </div>
+        <% } else if (player.hasOutgoingRequest) { %>
+          <form action="/community/friends/cancel/<%= player.id %>" method="POST">
+            <input type="hidden" name="redirectTo" value="/community?q=<%= encodeURIComponent(search) %>">
+            <button type="submit" class="btn btn-secondary">Cancelar pedido</button>
+          </form>
+        <% } else { %>
+          <form action="/community/friends/request/<%= player.id %>" method="POST">
+            <input type="hidden" name="redirectTo" value="/community?q=<%= encodeURIComponent(search) %>">
+            <button type="submit" class="btn btn-primary">Adicionar amigo</button>
+          </form>
+        <% } %>
+
         <div style="display: flex; gap: 8px;">
-          <a href="/profile/<%= player.username %>" class="btn btn-secondary" style="flex: 1;">Ver Perfil</a>
-          
           <form action="/community/follow/<%= player.id %>" method="POST" style="flex: 1;">
             <input type="hidden" name="redirectTo" value="/community?q=<%= encodeURIComponent(search) %>">
             <button type="submit" class="btn btn-full <%= player.isFollowing ? 'btn-secondary' : 'btn-primary' %>">

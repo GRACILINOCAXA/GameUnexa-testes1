@@ -13,60 +13,119 @@
   <div>
     <h1 style="margin-bottom: 6px;">Feed da Comunidade</h1>
     <p style="color: var(--text-secondary); margin-bottom: 24px;">
-      Acompanhe as avaliações, notas e atualizações dos jogadores que você segue.
+    Compartilhe o que está jogando e acompanhe sua comunidade.
     </p>
 
-    <% if (activities.length === 0) { %>
-      <div class="activity-card" style="flex-direction: column;">
-        <p style="color: var(--text-secondary);">
-          Seu feed ainda está vazio! Siga outros jogadores para ver as avaliações e jogos deles aqui.
-        </p>
-        <a href="/community" class="btn btn-primary">Encontrar Jogadores</a>
+    <section class="post-composer">
+    <h2 class="section-title">Nova publicação</h2>
+    <% if (postError) { %>
+      <div class="alert-error"><%= postError %></div>
+    <% } %>
+    <% if (games.length === 0) { %>
+      <p class="game-meta">Adicione um jogo à sua biblioteca pelo catálogo para poder associá-lo a uma publicação.</p>
+      <a href="/games/catalog" class="btn btn-primary">Explorar catálogo</a>
+    <% } else { %>
+      <form action="/feed/posts" method="POST" class="post-form">
+        <div class="form-group">
+          <label for="postText">O que está pensando?</label>
+          <textarea id="postText" name="text" maxlength="1000" rows="3" required></textarea>
+          </div>
+        <div class="post-form-options">
+          <select name="igdbId" aria-label="Jogo associado" required>
+            <option value="">Escolha um jogo do catálogo</option>
+            <% games.forEach(game => { %>
+              <option value="<%= game.igdbId %>"><%= game.name %></option>
+            <% }) %>
+          </select>
+          <select name="visibility" aria-label="Visibilidade da publicação">
+            <option value="PUBLIC">Pública</option>
+            <option value="FRIENDS">Apenas amigos</option>
+          </select>
+          <button type="submit" class="btn btn-primary">Publicar</button>
+        </div>
+      </form>
+    <% } %>
+    </section>
+
+    <section class="feed-section">
+    <h2 class="section-title">Publicações</h2>
+    <% if (posts.length === 0) { %>
+      <p class="game-meta">Ainda não há publicações visíveis.</p>
+    <% } else { %>
+      <div class="feed-list">
+        <% posts.forEach(post => { %>
+          <article class="post-card">
+            <div class="post-header">
+              <a href="/profile/<%= post.username %>">@<%= post.username %></a>
+              <span class="activity-time"><%= new Date(post.createdAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) %></span>
+            </div>
+            <p class="post-text"><%= post.text %></p>
+            <a class="post-game" href="/games/<%= post.igdbId %>">
+              <% if (post.coverUrl) { %><img src="<%= post.coverUrl %>" alt=""><% } %>
+              <span>Sobre <strong><%= post.gameName %></strong></span>
+            </a>
+            <div class="post-actions">
+              <form action="/social/like" method="POST">
+                <input type="hidden" name="targetType" value="POST">
+                <input type="hidden" name="targetId" value="<%= post.id %>">
+                <input type="hidden" name="redirectTo" value="/feed">
+                <button type="submit" class="btn btn-secondary"><%= post.isLiked ? '♥ Curtido' : '♡ Curtir' %> (<%= post.likesCount %>)</button>
+              </form>
+              <% if (post.visibility === 'FRIENDS') { %><span class="status-badge">Apenas amigos</span><% } %>
+            </div>
+            <form action="/social/comment" method="POST" class="top-level-comment">
+              <input type="hidden" name="targetType" value="POST">
+              <input type="hidden" name="targetId" value="<%= post.id %>">
+              <input type="hidden" name="redirectTo" value="/feed">
+              <input type="text" name="text" maxlength="1000" placeholder="Escreva um comentário..." required>
+              <button type="submit" class="btn btn-secondary">Comentar</button>
+            </form>
+            <%- include('partials/social-comments', { comments: post.comments, targetType: 'POST', targetId: post.id, redirectTo: '/feed' }) %>
+          </article>
+        <% }) %>
       </div>
+    <% } %>
+    </section>
+
+    <section class="feed-section">
+    <h2 class="section-title">Atividades da rede</h2>
+    <% if (activities.length === 0) { %>
+      <p class="game-meta">Siga jogadores para acompanhar atualizações da biblioteca e avaliações.</p>
     <% } else { %>
       <div class="feed-list">
         <% activities.forEach(act => { %>
-
           <div class="activity-card">
             <a href="/games/<%= act.igdbId %>">
               <img src="<%= act.coverUrl %>" alt="<%= act.gameName %>" class="activity-cover">
             </a>
-
             <div class="activity-content">
               <div class="activity-header">
                 <a href="/profile/<%= act.username %>">@<%= act.username %></a>
-
-              <% if (act.type === 'LIBRARY') { %>
-                <%= statusActionText[act.status] || 'atualizou' %>
-                <a href="/games/<%= act.igdbId %>" class="activity-game-title" style="color: var(--text-primary);"><%= act.gameName %></a>
-              <% } else if (act.type === 'FAVORITE') { %>
-                favoritou <i class="ph-fill ph-heart" style="color: #ef4444;"></i> <a href="/games/<%= act.igdbId %>" class="activity-game-title" style="color: var(--text-primary);"><%= act.gameName %></a>
-              <% } else if (act.type === 'REVIEW') { %>
-                avaliou <a href="/games/<%= act.igdbId %>" class="activity-game-title" style="color: var(--text-primary);"><%= act.gameName %></a>
-              <% } %>
-            </div>
-
+                <% if (act.type === 'LIBRARY') { %>
+                  <%= statusActionText[act.status] || 'atualizou' %>
+                  <a href="/games/<%= act.igdbId %>" class="activity-game-title"><%= act.gameName %></a>
+                <% } else if (act.type === 'FAVORITE') { %>
+                  favoritou <a href="/games/<%= act.igdbId %>" class="activity-game-title"><%= act.gameName %></a>
+                <% } else if (act.type === 'REVIEW') { %>
+                  avaliou <a href="/games/<%= act.igdbId %>" class="activity-game-title"><%= act.gameName %></a>
+                <% } %>
+              </div>
               <% if (act.rating) { %>
                 <div>
                   <span class="rating-stars"><%= '★'.repeat(act.rating) %><%= '☆'.repeat(5 - act.rating) %></span>
                   <span style="font-size: 0.82rem; color: var(--text-secondary);">(<%= act.rating %>/5)</span>
                 </div>
               <% } %>
-
               <% if (act.type === 'REVIEW' && act.text) { %>
-                <div class="activity-review-quote">
-                  "<%= act.text %>"
-                </div>
+                <div class="activity-review-quote">"<%= act.text %>"</div>
               <% } %>
-
-              <span class="activity-time">
-                <%= new Date(act.timestamp).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) %>
-              </span>
+              <span class="activity-time"><%= new Date(act.timestamp).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) %></span>
             </div>
           </div>
         <% }) %>
       </div>
     <% } %>
+    </section>
   </div>
 
   <aside class="rec-sidebar">

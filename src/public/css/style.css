@@ -188,6 +188,8 @@ a {
 input[type="text"],
 input[type="email"],
 input[type="password"],
+input[type="url"],
+textarea,
 select {
   width: 100%;
   padding: 10px 12px;
@@ -200,14 +202,37 @@ select {
 }
 
 input:focus,
+textarea:focus,
 select:focus {
   border-color: var(--accent-primary);
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  font: inherit;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-muted);
 }
 
 .alert-error {
   background-color: rgba(218, 55, 60, 0.15);
   border: 1px solid var(--accent-red);
   color: #ff8a8d;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.alert-success {
+  background-color: rgba(0, 224, 84, 0.1);
+  border: 1px solid var(--accent-green);
+  color: var(--accent-green);
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
@@ -334,6 +359,134 @@ select:focus {
   font-size: 1.75rem;
   display: flex;
   align-items: center;
+  gap: 10px;
+}
+
+.profile-avatar {
+  width: 88px;
+  height: 88px;
+  flex: 0 0 88px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--accent-green);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 220px;
+}
+
+.profile-actions,
+.friend-request-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.friend-requests {
+  margin-bottom: 28px;
+  padding: 18px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.friend-request-item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.friend-request-item:last-child {
+  border-bottom: 0;
+}
+
+.profile-bio,
+.profile-platform {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.profile-platform strong {
+  color: var(--text-primary);
+}
+
+.profile-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.profile-links a {
+  color: var(--accent-green);
+}
+
+.profile-links a:hover {
+  text-decoration: underline;
+}
+
+.profile-settings {
+  max-width: 680px;
+  margin: 0 auto;
+  background-color: var(--bg-card);
+  padding: 28px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.profile-settings h1 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.profile-settings .section-title {
+  margin-top: 28px;
+}
+
+.account-section {
+  margin-bottom: 28px;
+}
+
+.account-danger-zone {
+  margin: 32px 0 24px;
+  padding: 20px;
+  border: 1px solid var(--accent-red);
+  border-radius: var(--radius-md);
+  background: rgba(218, 55, 60, 0.08);
+}
+
+.account-danger-zone h2 {
+  margin-bottom: 8px;
+  color: #ff8a8d;
+}
+
+.account-danger-zone p {
+  margin-bottom: 18px;
+  color: var(--text-secondary);
+}
+
+.profile-settings-actions {
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
@@ -490,6 +643,105 @@ select:focus {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.feed-section {
+  margin-top: 30px;
+}
+
+.post-composer,
+.post-card {
+  padding: 18px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.post-composer {
+  margin-bottom: 28px;
+}
+
+.post-form-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.post-form-options select {
+  flex: 1;
+  min-width: 170px;
+}
+
+.post-header,
+.post-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.post-header a,
+.comment-author {
+  color: var(--accent-green);
+  font-weight: 700;
+}
+
+.post-text {
+  margin: 14px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.post-game {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.post-game img {
+  width: 36px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.post-game strong {
+  color: var(--text-primary);
+}
+
+.post-actions {
+  justify-content: flex-start;
+  margin: 8px 0;
+}
+
+.top-level-comment,
+.reply-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.top-level-comment input,
+.reply-form input {
+  min-width: 0;
+  flex: 1;
+}
+
+.comment-item {
+  padding: 10px 0 0;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: 10px;
+}
+
+.comment-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  overflow-wrap: anywhere;
 }
 
 .activity-card {

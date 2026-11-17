@@ -1,29 +1,15 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { getSession } from '../config/neo4j.js';
-
-const setAuthCookie = (res, user) => {
-  const token = jwt.sign(
-    { id: user.id, username: user.username },
-    process.env.JWT_SECRET,
-    { expiresIn: '7d' }
-  );
-
-  res.cookie('token', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias em milissegundos
-  });
-};
+import { setAuthCookie } from '../authHelpers.js';
 
 export const renderRegister = (req, res) => {
   res.render('register', { error: null, title: "GameUnexa" });
 };
 
 export const renderLogin = (req, res) => {
-  res.render('login', { error: null, title: "GameUnexa" });
+  const success = req.query.accountDeleted === '1' ? 'Sua conta foi excluída permanentemente.' : null;
+  res.render('login', { error: null, success, title: "GameUnexa" });
 };
 
 export const register = async (req, res) => {

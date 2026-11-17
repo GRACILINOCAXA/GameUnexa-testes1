@@ -1,0 +1,72 @@
+<%- include('partials/head', { title: 'Configurações da conta' }) %>
+
+<section class="profile-settings account-settings">
+  <h1>Configurações da conta</h1>
+  <p class="auth-subtitle">Atualize seus dados de acesso, altere sua senha ou exclua sua conta.</p>
+
+  <% if (error) { %>
+    <div class="alert-error"><%= error %></div>
+  <% } %>
+  <% if (success) { %>
+    <div class="alert-success"><%= success %></div>
+  <% } %>
+
+  <section class="account-section">
+    <h2 class="section-title">Dados cadastrais</h2>
+    <form action="/user/account/profile" method="POST">
+      <div class="form-group">
+        <label for="username">Nome de usuário</label>
+        <input type="text" id="username" name="username" maxlength="40" value="<%= account.username || '' %>" required>
+      </div>
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" value="<%= account.email || '' %>" required>
+      </div>
+      <div class="form-group">
+        <label for="profileCurrentPassword">Senha atual</label>
+        <input type="password" id="profileCurrentPassword" name="currentPassword" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Salvar dados cadastrais</button>
+    </form>
+  </section>
+
+  <section class="account-section">
+    <h2 class="section-title">Alterar senha</h2>
+    <form action="/user/account/password" method="POST">
+      <div class="form-group">
+        <label for="passwordCurrentPassword">Senha atual</label>
+        <input type="password" id="passwordCurrentPassword" name="currentPassword" autocomplete="current-password" required>
+      </div>
+      <div class="form-group">
+        <label for="newPassword">Nova senha</label>
+        <input type="password" id="newPassword" name="newPassword" minlength="8" maxlength="72" autocomplete="new-password" required>
+        <small>Use pelo menos 8 caracteres.</small>
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Confirme a nova senha</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" maxlength="72" autocomplete="new-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Alterar senha</button>
+    </form>
+  </section>
+
+  <section class="account-danger-zone">
+    <h2>Excluir conta permanentemente</h2>
+    <p>A exclusão remove seu perfil, biblioteca, amizades, publicações, avaliações e comentários. Esta ação não pode ser desfeita.</p>
+    <form action="/user/account/delete" method="POST">
+      <div class="form-group">
+        <label for="deleteCurrentPassword">Senha atual</label>
+        <input type="password" id="deleteCurrentPassword" name="currentPassword" autocomplete="current-password" required>
+      </div>
+      <div class="form-group">
+        <label for="deleteConfirmation">Digite EXCLUIR para confirmar</label>
+        <input type="text" id="deleteConfirmation" name="confirmation" autocomplete="off" required>
+      </div>
+      <button type="submit" class="btn btn-danger">Excluir minha conta</button>
+    </form>
+  </section>
+
+  <a href="/user/settings" class="btn btn-secondary">Voltar às configurações do perfil</a>
+</section>
+
+<%- include('partials/footer') %>

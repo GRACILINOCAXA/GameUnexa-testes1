@@ -23,6 +23,16 @@ export const initConstraints = async () => {
       FOR (g:Game) REQUIRE g.igdbId IS UNIQUE
     `);
 
+    await session.run(`
+      CREATE CONSTRAINT post_id_unique IF NOT EXISTS
+      FOR (p:Post) REQUIRE p.id IS UNIQUE
+    `);
+
+    await session.run(`
+      CREATE CONSTRAINT comment_id_unique IF NOT EXISTS
+      FOR (c:Comment) REQUIRE c.id IS UNIQUE
+    `);
+
     console.log('Constraints do Neo4j verificadas/criadas.');
   } catch (error) {
     console.error('Erro ao criar constraints:', error.message);

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { searchGames, getGameById } from '../config/igdb.js';
 import { getSession } from '../config/neo4j.js';
+import { buildCommentTree } from '../socialUtils.js';
 
 export const renderCatalog = async (req, res) => {
   const query = req.query.q || '';
@@ -86,35 +87,66 @@ export const renderGameDetails = async (req, res) => {
       OPTIONAL MATCH (me:User { id: $userId })-[myLib:HAS_IN_LIBRARY]->(g)
       OPTIONAL MATCH (me)-[myFav:FAVORITED]->(g)
       OPTIONAL MATCH (allUsers:User)-[allLib:HAS_IN_LIBRARY]->(g)
-      OPTIONAL MATCH (author:User)-[:POSTED]->(rev:Review)-[:ABOUT]->(g)
-      WITH g, myLib, myFav,
-           count(DISTINCT allUsers) AS playersCount,
-           avg(allLib.rating) AS avgRating,
-           author, rev
-      ORDER BY rev.createdAt DESC
       RETURN myLib.status AS myStatus,
              myLib.rating AS myRating,
              myFav IS NOT NULL AS isFavorited,
-             playersCount,
-             avgRating,
-             collect(DISTINCT {
-               id: rev.id,
-               text: rev.text,
-               author: author.username,
-               createdAt: toString(rev.createdAt)
-             }) AS reviews
+             count(DISTINCT allUsers) AS playersCount,
+             avg(allLib.rating) AS avgRating
       `,
       { igdbId: String(igdbId), userId }
     );
 
     const record = result.records[0];
+    const reviewsResult = await session.run(
+      `
+      MATCH (author:User)-[:POSTED]->(review:Review)-[:ABOUT]->(:Game { igdbId: $igdbId })
+      CALL {
+        WITH review
+        OPTIONAL MATCH (liker:User)-[:LIKED]->(review)
+        WITH review, count(DISTINCT liker) AS likesCount
+        OPTIONAL MATCH (:User { id: $userId })-[myLike:LIKED]->(review)
+        RETURN likesCount, myLike IS NOT NULL AS isLiked
+      }
+      CALL {
+        WITH review
+        OPTIONAL MATCH (commentAuthor:User)-[:WROTE]->(comment:Comment)-[:ON_REVIEW]->(review)
+        OPTIONAL MATCH (comment)-[:REPLY_TO]->(parent:Comment)
+        RETURN collect(DISTINCT CASE WHEN comment IS NULL THEN null ELSE {
+          id: comment.id,
+          text: comment.text,
+          author: commentAuthor.username,
+          parentId: parent.id,
+          createdAt: toString(comment.createdAt)
+        } END) AS comments
+      }
+      RETURN review.id AS id,
+             review.text AS text,
+             author.username AS author,
+             toString(review.createdAt) AS createdAt,
+             likesCount,
+             isLiked,
+             [comment IN comments WHERE comment IS NOT NULL] AS comments
+      ORDER BY review.createdAt DESC
+      `,
+      { igdbId: String(igdbId), userId }
+    );
+    const reviews = reviewsResult.records.map(review => ({
+      id: review.get('id'),
+      text: review.get('text'),
+      author: review.get('author'),
+      createdAt: review.get('createdAt'),
+      likesCount: review.get('likesCount').toNumber(),
+      isLiked: review.get('isLiked'),
+      comments: buildCommentTree(review.get('comments'))
+    }));
+
     const socialData = {
       myStatus: record.get('myStatus'),
       myRating: record.get('myRating') ? record.get('myRating').toNumber() : null,
       isFavorited: record.get('isFavorited'),
       playersCount: record.get('playersCount').toNumber(),
       avgRating: record.get('avgRating') ? Number(record.get('avgRating')).toFixed(1) : null,
-      reviews: record.get('reviews').filter(r => r.id !== null)
+      reviews
     };
 
     res.render('game-details', { game, socialData });

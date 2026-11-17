@@ -94,6 +94,22 @@
                 </span>
               </div>
               <p style="color: var(--text-primary); font-size: 0.95rem;"><%= rev.text %></p>
+              <div class="post-actions">
+                <form action="/social/like" method="POST">
+                  <input type="hidden" name="targetType" value="REVIEW">
+                  <input type="hidden" name="targetId" value="<%= rev.id %>">
+                  <input type="hidden" name="redirectTo" value="/games/<%= game.igdbId %>">
+                  <button type="submit" class="btn btn-secondary"><%= rev.isLiked ? '♥ Curtido' : '♡ Curtir' %> (<%= rev.likesCount %>)</button>
+                </form>
+              </div>
+              <form action="/social/comment" method="POST" class="top-level-comment">
+                <input type="hidden" name="targetType" value="REVIEW">
+                <input type="hidden" name="targetId" value="<%= rev.id %>">
+                <input type="hidden" name="redirectTo" value="/games/<%= game.igdbId %>">
+                <input type="text" name="text" maxlength="1000" placeholder="Comente esta avaliação..." required>
+                <button type="submit" class="btn btn-secondary">Comentar</button>
+              </form>
+              <%- include('partials/social-comments', { comments: rev.comments, targetType: 'REVIEW', targetId: rev.id, redirectTo: '/games/' + game.igdbId }) %>
             </div>
           <% }) %>
         </div>
