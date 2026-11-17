@@ -8,12 +8,11 @@ import { driver, verifyConnection } from "./src/config/neo4j.js";
 import { initConstraints } from "./src/config/initDb.js";
 
 import indexRoutes from "./src/routes/testeIndex.js";
-import authRoutes from './src/routes/authRoutes.js';
+import authRoutes from './src/routes/authRoutes.js'
 import gameRoutes from './src/routes/gameRoutes.js';
-import socialRoutes from './src/routes/socialRoutes.js';
-import userRoutes from './src/routes/userRoutes.js';
+import socialRoutes from './src/routes/socialRoutes.js'
 
-import { checkUser } from "./src/middlewares/authMiddleware.js";
+import { requireAuth, checkUser } from "./src/middlewares/authMiddleware.js";
 
 const app = express();
 const currentFile = fileURLToPath(import.meta.url);
@@ -33,16 +32,17 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
-app.use('/', indexRoutes);
+app.use("/", indexRoutes);
 app.use('/auth', authRoutes);
 app.use('/games', gameRoutes);
-app.use('/user', userRoutes);
 app.use('/', socialRoutes);
+
+
 
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
-  await verifyConnection();
+  await verifyConnection(); 
   await initConstraints();
 
   app.listen(PORT, () => {

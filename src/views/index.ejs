@@ -1,0 +1,19 @@
+<%- include('partials/head', { title: 'Início' }) %>
+
+<div style="text-align: center; padding: 60px 20px;">
+  <h1 style="font-size: 2.5rem; margin-bottom: 16px;">Organize seus jogos. Conecte-se com jogadores.</h1>
+  <p style="color: var(--text-secondary); max-width: 560px; margin: 0 auto 32px;">
+    Acompanhe o que você está jogando, avalie seus títulos favoritos e descubra recomendações baseadas na sua rede.
+  </p>
+
+  <% if (locals.user) { %>
+    <a href="/games/catalog" class="btn btn-primary">Explorar Catálogo</a>
+  <% } else { %>
+    <div style="display: flex; gap: 12px; justify-content: center;">
+      <a href="/auth/register" class="btn btn-primary">Começar Agora</a>
+      <a href="/auth/login" class="btn btn-secondary">Já tenho conta</a>
+    </div>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

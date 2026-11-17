@@ -15,12 +15,6 @@ export const renderProfile = async (req, res) => {
       OPTIONAL MATCH (me:User { id: $loggedUserId })-[isFollowing:FOLLOWS]->(target)
       RETURN target.id AS id,
              target.username AS username,
-             target.bio AS bio,
-             target.avatarUrl AS avatarUrl,
-             target.preferredPlatform AS preferredPlatform,
-             target.steamUrl AS steamUrl,
-             target.psnUrl AS psnUrl,
-             target.xboxLiveUrl AS xboxLiveUrl,
              count(DISTINCT follower) AS followersCount,
              count(DISTINCT following) AS followingCount,
              isFollowing IS NOT NULL AS isFollowing
@@ -36,12 +30,6 @@ export const renderProfile = async (req, res) => {
     const profileUser = {
       id: userRecord.get('id'),
       username: userRecord.get('username'),
-      bio: userRecord.get('bio') || '',
-      avatarUrl: userRecord.get('avatarUrl') || '',
-      preferredPlatform: userRecord.get('preferredPlatform') || 'PC',
-      steamUrl: userRecord.get('steamUrl') || '',
-      psnUrl: userRecord.get('psnUrl') || '',
-      xboxLiveUrl: userRecord.get('xboxLiveUrl') || '',
       followersCount: userRecord.get('followersCount').toNumber(),
       followingCount: userRecord.get('followingCount').toNumber(),
       isFollowing: userRecord.get('isFollowing'),

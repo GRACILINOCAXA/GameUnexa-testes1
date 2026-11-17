@@ -1,0 +1,128 @@
+<%- include('partials/head', { title: 'Catálogo de Jogos' }) %>
+
+<form class="search-bar" action="/games/catalog" method="GET">
+  <input type="text" name="q" placeholder="Buscar jogo na IGDB (ex: Elden Ring, Hollow Knight)..." value="<%= query %>">
+  <button type="submit" class="btn btn-primary">Buscar</button>
+</form>
+
+<div class="pagination" style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 2.5rem 0;">
+  <% if (currentPage > 1) { %>
+    <a href="/games/catalog?q=<%= encodeURIComponent(query) %>&page=<%= currentPage - 1 %>" class="btn btn-secondary">
+      ← Anterior
+    </a>
+  <% } %>
+
+  <span style="color: #9ca3af; font-weight: 500;">
+    Página <%= currentPage %> de <%= maxPages %>
+  </span>
+
+  <% if (hasNextPage) { %>
+    <a href="/games/catalog?q=<%= encodeURIComponent(query) %>&page=<%= currentPage + 1 %>" class="btn btn-primary">
+      Próxima →
+    </a>
+  <% } %>
+</div>
+
+<div class="games-grid">
+  <% games.forEach(game => { 
+    const userData = interactionsMap[game.igdbId] || { status: '', rating: '', isFavorited: false, reviews: [] };
+  %>
+    <div class="game-card">
+      <div class="game-cover-wrapper">
+        <a href="/games/<%= game.igdbId %>" class="game-cover-wrapper">
+          <img src="<%= game.coverUrl %>" alt="<%= game.name %>">
+        </a>
+      </div>
+      
+      <div class="game-body">
+        <div>
+          <a href="/games/ <%= game.igdbId %>">
+            <h3 class="game-title"><%= game.name %></h3>
+          </a>
+          <span class="game-meta">Lançamento: <%= game.releaseYear %></span>
+        </div>
+
+        <form action="/games/favorite" method="POST">
+          <input type="hidden" name="igdbId" value="<%= game.igdbId %>">
+          <input type="hidden" name="name" value="<%= game.name %>">
+          <input type="hidden" name="coverUrl" value="<%= game.coverUrl %>">
+          <input type="hidden" name="redirectQuery" value="<%= query %>">
+          <input type="hidden" name="redirectPage" value="<%= currentPage %>">
+          <button type="submit" class="btn btn-secondary btn-full <%= userData.isFavorited ? 'fav-active' : '' %>">
+            <% if (userData.isFavorited) { %>
+              <i class="ph-fill ph-heart" style="color: #ef4444;"></i> Favoritado
+            <% } else { %>
+              <i class="ph ph-heart"></i> Favoritar
+            <% } %>
+          </button>
+        </form>
+
+        <form class="inline-form" action="/games/library" method="POST">
+          <input type="hidden" name="igdbId" value="<%= game.igdbId %>">
+          <input type="hidden" name="name" value="<%= game.name %>">
+          <input type="hidden" name="coverUrl" value="<%= game.coverUrl %>">
+          <input type="hidden" name="redirectQuery" value="<%= query %>">
+          <input type="hidden" name="redirectPage" value="<%= currentPage %>">
+
+          <select name="status">
+            <option value="PLAYING" <%= userData.status === 'PLAYING' ? 'selected' : '' %>>Jogando</option>
+            <option value="BEATEN" <%= userData.status === 'BEATEN' ? 'selected' : '' %>>Zerado</option>
+            <option value="WISHLIST" <%= userData.status === 'WISHLIST' ? 'selected' : '' %>>Lista de Desejos</option>
+            <option value="BACKLOG" <%= userData.status === 'BACKLOG' ? 'selected' : '' %>>Na Fila (Backlog)</option>
+          </select>
+
+          <select name="rating">
+            <option value="">Sem nota</option>
+            <% for(let i = 1; i <= 5; i++) { %>
+              <option value="<%= i %>" <%= userData.rating === i ? 'selected' : '' %>><%= '★'.repeat(i) %> (<%= i %>/5)</option>
+            <% } %>
+          </select>
+
+          <button type="submit" class="btn btn-primary btn-full">
+            <%= userData.status ? 'Atualizar Biblioteca' : '+ Adicionar à Biblioteca' %>
+          </button>
+        </form>
+
+        <form class="inline-form" action="/games/review" method="POST">
+          <input type="hidden" name="igdbId" value="<%= game.igdbId %>">
+          <input type="hidden" name="name" value="<%= game.name %>">
+          <input type="hidden" name="coverUrl" value="<%= game.coverUrl %>">
+          <input type="hidden" name="redirectQuery" value="<%= query %>">
+          <input type="hidden" name="redirectPage" value="<%= currentPage %>">
+          <input type="text" name="text" placeholder="Escreva um comentário..." required>
+          <button type="submit" class="btn btn-secondary btn-full">Comentar</button>
+        </form>
+
+        <% if (userData.reviews.length > 0) { %>
+          <div class="reviews-box">
+            <% userData.reviews.forEach(rev => { %>
+              <div class="review-item">
+                <strong>@<%= rev.author %>:</strong> <%= rev.text %>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  <% }) %>
+</div>
+
+<div class="pagination" style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 2.5rem 0;">
+  <% if (currentPage > 1) { %>
+    <a href="/games/catalog?q=<%= encodeURIComponent(query) %>&page=<%= currentPage - 1 %>" class="btn btn-secondary">
+      ← Anterior
+    </a>
+  <% } %>
+
+  <span style="color: #9ca3af; font-weight: 500;">
+    Página <%= currentPage %> de <%= maxPages %>
+  </span>
+
+  <% if (hasNextPage) { %>
+    <a href="/games/catalog?q=<%= encodeURIComponent(query) %>&page=<%= currentPage + 1 %>" class="btn btn-primary">
+      Próxima →
+    </a>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

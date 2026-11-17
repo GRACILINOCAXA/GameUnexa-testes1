@@ -1,7 +1,5 @@
 import jwt from 'jsonwebtoken';
 
-const getJwtSecret = () => process.env.JWT_SECRET || 'gameunexa-dev-secret';
-
 export const requireAuth = (req, res, next) => {
   const token = req.cookies.token;
 
@@ -10,7 +8,7 @@ export const requireAuth = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, getJwtSecret());
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded; // { id, username }
     next();
   } catch (error) {
@@ -28,7 +26,7 @@ export const checkUser = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, getJwtSecret());
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     res.locals.user = decoded;
     req.user = decoded;
   } catch (error) {
